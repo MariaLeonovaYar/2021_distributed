@@ -20,8 +20,8 @@ public class PersonResource {
     private Set<Person> people = Collections.newSetFromMap(Collections.synchronizedMap(new LinkedHashMap<>()));
 
     public PersonResource() {
-        people.add(new Person("Apple", "Winter fruit", 12));
-        people.add(new Person("Pineapple", "Tropical fruit", 14));
+        people.add(new Person("Ivan", "Ivanov", 12, new Address("Lenina, 1a", "Yaroslavl", "150010")));
+        people.add(new Person("Petr", "Petrov", 14, new Address("Suvorova, 21", "Moscow", "124316")));
     }
 
     @GET

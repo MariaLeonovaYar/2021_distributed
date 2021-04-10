@@ -1,74 +1,99 @@
 <!doctype html>
 <html>
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>Person REST service</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css" />
     <!-- Load AngularJS -->
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script type="text/javascript">
-      var app = angular.module("PersonManagement", []);
+  var app = angular.module("PersonManagement", []);
+//Controller Part
+app.controller("PersonManagementController", function($scope, $http) {
+    //Initialize page with default data which is blank in this example
+    $scope.persons = [];
+    $scope.form = {
+        firstName: "",
+        lastName: "",
+        age: ""
+    };
+    //Now load the data from server
+    _refreshPageData();
 
-      //Controller Part
-      app.controller("PersonManagementController", function ($scope, $http) {
-
-        //Initialize page with default data which is blank in this example
-        $scope.persons = [];
-
-        $scope.form = {
-          firstName: "",
-          lastName: "",
-          age: ""
+    //HTTP POST methods for add persons
+    $scope.add = function() {
+        var address = {
+            "streetAddress": $scope.form.address.streetAddress,
+            "city": $scope.form.address.city,
+            "postalCode": $scope.form.address.postalCode
         };
-
-        //Now load the data from server
-        _refreshPageData();
-
-        //HTTP POST methods for add persons
-        $scope.add = function () {
-          var data = { "firstName": $scope.form.firstName, "lastName": $scope.form.lastName, "age": $scope.form.age};
-
-          $http({
+        var data = {
+            "firstName": $scope.form.firstName,
+            "lastName": $scope.form.lastName,
+            "age": $scope.form.age,
+            "address": address
+        };
+        $http({
             method: "POST",
             url: '/persons',
             data: angular.toJson(data),
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             }
-          }).then(_success, _error);
+        }).then(_success, _error);
+    };
+
+     $scope.delete = function (person){
+      var address = {
+            "streetAddress": person.address.streetAddress,
+            "city": person.address.city,
+            "postalCode": person.address.postalCode
+        };
+        var data = {
+            "firstName": person.firstName,
+            "lastName": person.lastName,
+            "age": person.age,
+            "address": address
         };
 
-        /* Private Methods */
-        //HTTP GET- get all persons collection
-        function _refreshPageData() {
-          $http({
+        $http.delete('/persons', { data: angular.toJson(data), headers: {'Content-type': 'application/json'} }).then(_success, _error);
+    };
+
+    /* Private Methods */
+    //HTTP GET- get all persons collection
+    function _refreshPageData() {
+        $http({
             method: 'GET',
             url: '/persons'
-          }).then(function successCallback(response) {
+        }).then(function successCallback(response) {
             $scope.persons = response.data;
-          }, function errorCallback(response) {
+        }, function errorCallback(response) {
             console.log(response.statusText);
-          });
-        }
+        });
+    }
 
-        function _success(response) {
-          _refreshPageData();
-          _clearForm();
-        }
+    function _success(response) {
+        _refreshPageData();
+        _clearForm();
+    }
 
-        function _error(response) {
-          alert(response.data.message || response.statusText);
-        }
-
-        //Clear the form
-        function _clearForm() {
-          $scope.form.firstName = "";
-          $scope.form.lastName = "";
-          $scope.form.age = "";
-        }
-      });
-    </script>
+    function _error(response) {
+        alert(response.data.message || response.statusText);
+    }
+    //Clear the form
+    function _clearForm() {
+        $scope.form.firstName = "";
+        $scope.form.lastName = "";
+        $scope.form.age = "";
+        $scope.form.address.streetAddress = "";
+        $scope.form.address.city = "";
+        $scope.form.address.postalCode = "";
+    }
+});
+  </script>
 </head>
+
 <body ng-app="PersonManagement" ng-controller="PersonManagementController">
 
 <div class="container">
@@ -77,32 +102,58 @@
     <h3>Добавить человека</h3>
     <form ng-submit="add()">
         <div class="row">
-            <div class="col-6"><input type="text" placeholder="Имя" ng-model="form.firstName" size="60"/></div>
+            <div class="col-6">
+                <input type="text" placeholder="Имя" ng-model="form.firstName" size="60" />
+            </div>
         </div>
         <div class="row">
-            <div class="col-6"><input type="text" placeholder="Фамилия" ng-model="form.lastName" size="60"/></div>
+            <div class="col-6">
+                <input type="text" placeholder="Фамилия" ng-model="form.lastName" size="60" />
+            </div>
         </div>
         <div class="row">
-            <div class="col-6"><input type="text" placeholder="Возраст" ng-model="form.age" size="60"/></div>
+            <div class="col-6">
+                <input type="text" placeholder="Возраст" ng-model="form.age" size="60" />
+            </div>
         </div>
-        <input type="submit" value="Save"/>
+        <div class="row">
+            <div class="col-6">
+                <input type="text" placeholder="Улица" ng-model="form.address.streetAddress" size="60" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <input type="text" placeholder="Город" ng-model="form.address.city" size="60" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <input type="text" placeholder="Индекс" ng-model="form.address.postalCode" size="60" />
+            </div>
+        </div>
+        <input type="submit" value="Save" />
     </form>
 
     <h3>Список людей</h3>
 
+    <div class="row">
         <div class="row">
-            <div class="col-lg-12">Имя</div>
-            <div class="col-lg-12">Фамилия</div>
-            <div class="col-lg-12">Возраст</div>
+            <div class="col-lg-6">Имя</div>
+            <div class="col-lg-6">Фамилия</div>
+            <div class="col-lg-6">Возраст</div>
+            <div class="col-lg-12">Адрес</div>
         </div>
 
         <div class="row" ng-repeat="person in persons">
-            <div class="col-lg-12">{{ person.firstName }}</div>
-            <div class="col-lg-12">{{ person.lastName }}</div>
-            <div class="col-lg-12">{{ person.age }}</div>
+            <div class="col-lg-11">{{ person.firstName }}</div>
+            <div class="col-lg-11">{{ person.lastName }}</div>
+            <div class="col-lg-11">{{ person.age }}</div>
+            <div class="col-lg-12">{{ person.address.streetAddress + " " + person.address.city + " " + person.address.postalCode}}</div>
+            <input type="button" value="Delete"  ng-click="delete(person)">
         </div>
-</div>
 
+    </div>
 
 </body>
+
 </html>
