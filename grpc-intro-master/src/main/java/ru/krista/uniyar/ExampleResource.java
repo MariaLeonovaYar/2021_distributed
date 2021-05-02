@@ -1,5 +1,6 @@
 package ru.krista.uniyar;
 
+import io.quarkus.calc.CalculatorProto;
 import io.quarkus.calc.CalculatorProto.CalculatorRequest;
 import io.quarkus.grpc.runtime.annotations.GrpcService;
 import io.quarkus.calc.CalculatorServiceGrpc;
@@ -14,13 +15,10 @@ public class ExampleResource {
     @GrpcService("calculator")
     CalculatorServiceGrpc.CalculatorServiceBlockingStub client;
 
-    // Доделать вычисления
     @GET
     @Path("/{number1} {number2} {operation}")
     public double calculator(@PathParam("number1") double number1, @PathParam("number2") double number2, @PathParam("operation") int operation) {
-//       client.calculate(CalculatorRequest.newBuilder().setNumber1(number1).build());
-//       client.calculate(CalculatorRequest.newBuilder().setNumber2(number2).build());
-//       client.calculate(CalculatorRequest.newBuilder().setOperationValue(operation).build());
-
+        CalculatorProto.CalculatorRequest request = CalculatorProto.CalculatorRequest.newBuilder().setNumber1(number1).setNumber2(number2).setOperationValue(operation).build();
+        return client.calculate(request).getResult();
     }
 }
